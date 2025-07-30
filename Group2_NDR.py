@@ -7,7 +7,7 @@ from streamlit_option_menu import option_menu
 # ------------------------------------------------
 # PAGE CONFIGURATION
 # ------------------------------------------------
-st.set_page_config(page_title="Loan Default Classifier - Group 2", layout="wide")
+st.set_page_config(page_title="Disaster Impact Predictor - Group 2", layout="wide")
 
 # ------------------------------------------------
 # LOAD TRAINED ARTIFACTS
@@ -37,53 +37,40 @@ with st.sidebar:
 # HOME TAB
 # ------------------------------------------------
 if selected == "Home":
-    st.title("🏠 Welcome to the Loan Default Classifier - Group 2")
-    st.write("Use this app to predict whether a customer is likely to default on a loan based on their input features.")
+    st.title("🏠 Welcome to the Disaster Impact Predictor - Group 2")
+    st.write("This tool predicts the number of people potentially affected by a natural disaster using historical patterns.")
 
 # ------------------------------------------------
 # PREDICTOR TAB
 # ------------------------------------------------
 elif selected == "Predictor":
-    st.title("🤖 Loan Default Prediction")
-    st.write("Enter the required customer details to predict loan default status.")
+    st.title("📊 Disaster Impact Prediction")
+    st.write("Provide the disaster and location details to estimate the number of people affected.")
 
     input_data = {}
     for col in X_columns:
-        if col.lower() in ['loan_amount', 'interest_rate', 'credit_score', 'loan_term']:
-            input_data[col] = st.number_input(col.replace("_", " ").title(), min_value=0.0, value=50.0)
-        elif col.lower() in ['employment_status']:
-            input_data[col] = st.selectbox("Employment Status", ['Employed', 'Self-employed', 'Unemployed'])
-        elif col.lower() in ['gender']:
-            input_data[col] = st.selectbox("Gender", ['Male', 'Female'])
+        if col.lower() in ['total_deaths', 'number_injured', 'number_affected', 'number_homeless']:
+            input_data[col] = st.number_input(col.replace("_", " ").title(), min_value=0.0, value=100.0)
+        elif col.lower() in ['country', 'region', 'disaster_group', 'disaster_type']:
+            input_data[col] = st.number_input(f"Encoded: {col.replace('_', ' ').title()}", min_value=0, step=1)
         else:
-            input_data[col] = st.text_input(f"{col.replace('_', ' ').title()}")
-
-    # Manual encoding
-    encoders = {
-        'Gender': {'Male': 1, 'Female': 0},
-        'Employment_Status': {'Employed': 0, 'Self-employed': 1, 'Unemployed': 2}
-    }
-
-    for col, mapping in encoders.items():
-        if col in input_data:
-            input_data[col] = mapping[input_data[col]]
+            input_data[col] = st.number_input(f"{col.replace('_', ' ').title()}", value=0.0)
 
     input_df = pd.DataFrame([input_data])
 
-    # Ensure all expected columns exist and are in correct order
+    # Ensure column order matches training
     for col in X_columns:
         if col not in input_df.columns:
-            input_df[col] = 0  # fill missing columns with default
+            input_df[col] = 0
     input_df = input_df[X_columns]
 
+    # Apply scaler
     input_scaled = scaler.transform(input_df)
 
-    if st.button("Predict Loan Default"):
-        pred = model.predict(input_scaled)[0]
-        prob = model.predict_proba(input_scaled)[0][int(pred)]
-        outcome = "Default" if pred == 1 else "No Default"
-        st.success(f"📌 Prediction: {outcome}")
-        st.write(f"Confidence Score: {prob * 100:.2f}%")
+    # Prediction
+    if st.button("Predict Affected People"):
+        prediction = model.predict(input_scaled)[0]
+        st.success(f"📌 Estimated Number of People Affected: {prediction:,.0f}")
 
 # ------------------------------------------------
 # ABOUT TAB
@@ -91,10 +78,10 @@ elif selected == "Predictor":
 elif selected == "About":
     st.title("ℹ About This App")
     st.markdown("""
-        This app was developed by *Group 2* to predict whether a customer will default on a loan.
+        This app was developed by *Group 2* to estimate the number of people affected by natural disasters.
 
-        *Model Used:* Gradient Boosting Regressor  
-        *Tools:* Python, Scikit-learn, Streamlit  
-        *Dataset:* Xente Loan Default Dataset  
-        *Goal:* Assist financial decision-making in customer loan screening
+        *Model Used*: Decision Tree Regressor  
+        *Tools*: Python, Scikit-learn, Streamlit  
+        *Dataset*: Natural Disaster Records (1993–2023)  
+        *Goal*: Provide insights for emergency preparedness and resource planning.
     """)
