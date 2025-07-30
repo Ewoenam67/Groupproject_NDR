@@ -7,7 +7,7 @@ from streamlit_option_menu import option_menu
 # ------------------------------------------------
 # PAGE CONFIGURATION
 # ------------------------------------------------
-st.set_page_config(page_title="Loan Default Classifier - Group 3", layout="wide")
+st.set_page_config(page_title="Loan Default Classifier - Group 2", layout="wide")
 
 # ------------------------------------------------
 # LOAD TRAINED ARTIFACTS
@@ -26,10 +26,10 @@ with st.sidebar:
         icons=["house", "bar-chart", "info-circle"],
         default_index=1,
         styles={
-            "container": {"padding": "0!important", "background-color": "#ecfdf5"},
-            "icon": {"color": "#047857", "font-size": "20px"},
-            "nav-link": {"font-size": "16px", "--hover-color": "#a7f3d0"},
-            "nav-link-selected": {"background-color": "#6ee7b7", "color": "#000"},
+            "container": {"padding": "0!important", "background-color": "#fef3c7"},
+            "icon": {"color": "#92400e", "font-size": "20px"},
+            "nav-link": {"font-size": "16px", "--hover-color": "#fde68a"},
+            "nav-link-selected": {"background-color": "#fcd34d", "color": "#000"},
         }
     )
 
@@ -37,7 +37,7 @@ with st.sidebar:
 # HOME TAB
 # ------------------------------------------------
 if selected == "Home":
-    st.title("🏠 Welcome to the Loan Default Classifier - Group 3")
+    st.title("🏠 Welcome to the Loan Default Classifier - Group 2")
     st.write("Use this app to predict whether a customer is likely to default on a loan based on their input features.")
 
 # ------------------------------------------------
@@ -69,12 +69,14 @@ elif selected == "Predictor":
             input_data[col] = mapping[input_data[col]]
 
     input_df = pd.DataFrame([input_data])
-  # Ensure all expected columns exist and are in correct order
-for col in X_columns:
-    if col not in input_df.columns:
-        input_df[col] = 0  # or another neutral value
-input_df = input_df[X_columns]
-input_scaled = scaler.transform(input_df)
+
+    # Ensure all expected columns exist and are in correct order
+    for col in X_columns:
+        if col not in input_df.columns:
+            input_df[col] = 0  # fill missing columns with default
+    input_df = input_df[X_columns]
+
+    input_scaled = scaler.transform(input_df)
 
     if st.button("Predict Loan Default"):
         pred = model.predict(input_scaled)[0]
@@ -89,10 +91,10 @@ input_scaled = scaler.transform(input_df)
 elif selected == "About":
     st.title("ℹ About This App")
     st.markdown("""
-        This app was developed by *Group 3* to predict whether a customer will default on a loan.
+        This app was developed by *Group 2* to predict whether a customer will default on a loan.
 
-        *Model Used:* Gradient Boosting Classifier  
+        *Model Used:* Gradient Boosting Regressor  
         *Tools:* Python, Scikit-learn, Streamlit  
         *Dataset:* Xente Loan Default Dataset  
-        *Goal:* Improve decision-making in customer loan approvals
+        *Goal:* Assist financial decision-making in customer loan screening
     """)
