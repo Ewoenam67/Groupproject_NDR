@@ -58,14 +58,15 @@ elif selected == "Predictor":
 
     input_df = pd.DataFrame([input_data])
 
-    # Ensure column order matches training
+    # Ensure all expected columns exist and are in correct order
     for col in X_columns:
         if col not in input_df.columns:
             input_df[col] = 0
     input_df = input_df[X_columns]
 
-    # Apply scaler
-    input_scaled = scaler.transform(input_df)
+    # Fix: strip column names to avoid feature name mismatch
+    input_array = input_df.values
+    input_scaled = scaler.transform(input_array)
 
     # Prediction
     if st.button("Predict Affected People"):
