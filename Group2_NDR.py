@@ -74,8 +74,7 @@ for col in X_columns:
     if col not in input_df.columns:
         input_df[col] = 0  # or another neutral value
 input_df = input_df[X_columns]
-
-    input_scaled = scaler.transform(input_df)
+input_scaled = scaler.transform(input_df)
 
     if st.button("Predict Loan Default"):
         pred = model.predict(input_scaled)[0]
