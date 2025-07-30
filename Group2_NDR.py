@@ -14,7 +14,7 @@ st.set_page_config(page_title="Disaster Impact Predictor - Group 2", layout="wid
 # ------------------------------------------------
 model = joblib.load("decision_tree_model.pkl")
 scaler = joblib.load("scaler.pkl")
-X_columns = joblib.load("X_columns.pkl")
+X_columns = joblib.load("X_columns.pkl")  # This must be the exact columns used for training
 
 # ------------------------------------------------
 # SIDEBAR NAVIGATION
@@ -56,22 +56,30 @@ elif selected == "Predictor":
         else:
             input_data[col] = st.number_input(f"{col.replace('_', ' ').title()}", value=0.0)
 
+    # Convert to DataFrame and align with expected structure
     input_df = pd.DataFrame([input_data])
 
-    # Ensure all expected columns exist and are in correct order
+    # Ensure all expected columns are present
     for col in X_columns:
         if col not in input_df.columns:
             input_df[col] = 0
+
+    # Reorder columns to match training data
     input_df = input_df[X_columns]
 
-    # Fix: strip column names to avoid feature name mismatch
-    input_array = input_df.values
-    input_scaled = scaler.transform(input_array)
+    # Final check before transforming
+    try:
+        input_scaled = scaler.transform(input_df)
 
-    # Prediction
-    if st.button("Predict Affected People"):
-        prediction = model.predict(input_scaled)[0]
-        st.success(f"📌 Estimated Number of People Affected: {prediction:,.0f}")
+        if st.button("Predict Affected People"):
+            prediction = model.predict(input_scaled)[0]
+            st.success(f"📌 Estimated Number of People Affected: {prediction:,.0f}")
+    except ValueError as e:
+        st.error(f"⚠ Prediction failed due to shape mismatch.\n\nDetails: {str(e)}")
+        st.write("🔍 Debug Info:")
+        st.write("Expected columns:", len(scaler.mean_))
+        st.write("Received columns:", input_df.shape[1])
+        st.dataframe(input_df)
 
 # ------------------------------------------------
 # ABOUT TAB
