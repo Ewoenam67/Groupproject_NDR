@@ -12,7 +12,7 @@ st.set_page_config(page_title="Loan Default Classifier - Group 2", layout="wide"
 # ------------------------------------------------
 # LOAD TRAINED ARTIFACTS
 # ------------------------------------------------
-model = joblib.load("gradient_boost_model.pkl")
+model = joblib.load("decision_tree_model.pkl")
 scaler = joblib.load("scaler.pkl")
 X_columns = joblib.load("X_columns.pkl")
 
